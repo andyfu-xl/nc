@@ -17,12 +17,12 @@ def q1_plot():
     fig, ax = plt.subplots()
     x = [x for (_, x) in parameter_list]
     y = [y for (y, _) in parameter_list]
-    area = [1 / (a / 1000 + 0.05) for (a, _, _) in results_rastrigin]
+    area = [800 / a for (a, _, _) in results_rastrigin]
     # normalize fitness values
     fit_raw = np.array([fit for (_, fit, _) in results_rastrigin])
     fit_range = max(fit_raw) - min(fit_raw)
     fit_min = min(fit_raw)
-    fit = np.array([np.square((f - fit_min) / fit_range) for f in fit_raw])
+    fit = np.array([(f - fit_min) / fit_range for f in fit_raw])
     sc = ax.scatter(x, y, s=area, c=fit, cmap=cmap)
     plt.colorbar(sc)
     ax.set_title('Rastrigin Function Parameters')
@@ -33,12 +33,12 @@ def q1_plot():
     fig, ax = plt.subplots()
     x = [x for (_, x) in parameter_list]
     y = [y for (y, _) in parameter_list]
-    area = [1 / (a / 1000 + 0.05) for (a, _, _) in results_sphere]
+    area = [800 / a for (a, _, _) in results_sphere]
     # normalize fitness values
     fit_raw = np.array([fit for (_, fit, _) in results_sphere])
     fit_range = max(fit_raw) - min(fit_raw)
     fit_min = min(fit_raw)
-    fit = np.array([np.square((f - fit_min) / fit_range) for f in fit_raw])
+    fit = np.array([(f - fit_min) / fit_range for f in fit_raw])
     sc = ax.scatter(x, y, s=area, c=fit, cmap=cmap)
     plt.colorbar(sc)
     ax.set_title('Sphere Function Parameters')
@@ -49,17 +49,17 @@ def q1_plot():
 
 def q2_plot():
     fig, ax = plt.subplots()
-    # # generate some random test data
-    array1 = np.array(q2_result_sphere[:])
+    print(np.array(q2_result_rastrigin).shape)
+    # array1 = np.array(q2_result_sphere)
     all_data1 = []
-    for box in q2_result_sphere[:]:
+    for box in q2_result_sphere:
         temp = []
         for item in box:
             temp.append(item)  # / (array1.max() - array1.min()) + 1)
         all_data1.append(temp)
-    n_list = [1, 5, 10, 20, 30, 50, 75, 100, 200, 500][:]
+    n_list = [1, 5, 10, 20, 30, 50, 75, 100, 200, 500]
     # plot violin plot
-    ax.violinplot(all_data1, showmeans=False, showmedians=True)
+    ax.violinplot(q2_result_sphere, showmeans=False, showmedians=True)
     ax.set_title('Fitness vs. Number of Particle \n Sphere Function')
     ax.yaxis.grid(True)
     ax.set_xticks([y + 1 for y in range(len(all_data1))], labels=n_list)
@@ -69,14 +69,14 @@ def q2_plot():
 
     fig, ax = plt.subplots()
     # # generate some random test data
-    array2 = np.array(q2_result_rastrigin[:])
+    # array2 = np.array(q2_result_rastrigin)
     all_data2 = []
-    for box in q2_result_rastrigin[:]:
+    for box in q2_result_rastrigin:
         temp = []
         for item in box:
             temp.append(item)  # / (array1.max() - array1.min()) + 1)
         all_data2.append(temp)
-    n_list = [1, 5, 10, 20, 30, 50, 75, 100, 200, 500][:]
+    n_list = [1, 5, 10, 20, 30, 50, 75, 100, 200, 500]
     # plot violin plot
     ax.violinplot(all_data2, showmeans=False, showmedians=True)
     ax.set_title('Fitness vs. Number of Particle \n Rastrigin Function')
@@ -85,3 +85,5 @@ def q2_plot():
     ax.set_xlabel('Number of particles')
     ax.set_ylabel('Fitness values')
     plt.show()
+
+q2_plot()

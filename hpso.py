@@ -1,4 +1,6 @@
+import math
 import numpy as np
+import random
 import time
 from results import *
 
@@ -32,6 +34,12 @@ class Particle:
                          a2 * r2 * (global_best - self.position))
 
 
+
+
+
+
+
+
 class PSO:
     def __init__(self, dimension, parameters, fitness_function, terminate, bound, max_iter=float('inf'),
                  number_particles=20, max_time=float('inf')):
@@ -62,6 +70,7 @@ class PSO:
     # asynchronous update
     def update(self):
         for x in range(self.number_particles):
+            particle = self.swarm[x]
             self.swarm[x].update_velocity(self.w, self.a1, self.a2, self.global_best)
             new_position = self.swarm[x].position + self.swarm[x].velocity
             for d in range(self.dimension):
@@ -88,77 +97,76 @@ class PSO:
         return self.global_best, self.best_fitness, self.iteration
 
 
-# input x should be a np.array
-def fit1(x):
-    return -sum(x ** 2)
+
+
+
+
+
+
+
+class HPSO:
+    def __init__(self, dimension, parameters1, parameters2, fitness_function, terminate, bound, max_iter=float('inf'),
+                 number_particles=20, max_time=float('inf')):
+        # I decided to terminate the search base the number of iterations with no change in the global best.
+        # Other options like number of iterations are also feasible.
+        self.terminate = terminate
+        self.w_1, self.a1_1, self.a2_1 = parameters1
+        self.w_2, self.a1_2, self.a2_2 = parameters2
+        # this should be a function
+        self.fitness = fitness_function
+        # bound should be 2D array in shape (2, dimension)
+        self.x_min, self.x_max = bound
+        self.number_particles = number_particles
+        self.dimension = dimension
+        self.iteration = 0
+        self.max_iteration = max_iter
+        self.max_time = max_time
+        self.best_fitness = float("-inf")
+        self.time_start = time.time()
+        self.half_population = int(number_particles / 2)
+
+        self.swarm = [Particle(fitness_function, dimension, self.x_min, self.x_max) for _ in range(number_particles)]
+        self.global_best = self.swarm[0].personal_best
+
+        for i in range(self.number_particles):
+            if self.best_fitness <= self.swarm[i].best_fitness:
+                self.best_fitness = self.swarm[i].best_fitness
+                self.global_best = self.swarm[i].personal_best
+
+    # asynchronous update
+    def update(self):
+        for x in range(self.number_particles):
+            if x < self.half_population:
+                self.swarm[x].update_velocity(self.w_1, self.a1_1, self.a2_1, self.global_best)
+            else:
+                self.swarm[x].update_velocity(self.w_2, self.a1_2, self.a2_2, self.global_best)
+            new_position = self.swarm[x].position + self.swarm[x].velocity
+            for d in range(self.dimension):
+                new_position[d] = max(new_position[d], self.x_min)
+                new_position[d] = min(new_position[d], self.x_max)
+            self.swarm[x].update_position(new_position)
+            new_fitness = self.fitness(new_position)
+            if new_fitness > self.best_fitness:
+                self.best_fitness = new_fitness
+                self.global_best = new_position
+
+    def main(self):
+        counter = 0
+        previous_best = self.best_fitness
+        while ((counter <= self.terminate) and (self.iteration < self.max_iteration) and
+               ((time.time() - self.time_start) < self.max_time)):
+            self.update()
+            self.iteration += 1
+            if previous_best == self.best_fitness:
+                counter += 1
+            else:
+                previous_best = self.best_fitness
+                counter = 0
+        return self.global_best, self.best_fitness, self.iteration
 
 
 def fit2(x):
     return -((10 * len(x)) + sum([(xi ** 2 - 10 * np.cos(2 * np.pi * xi)) for xi in x]))
-
-
-def q1(fitness_function):
-    # there are 504 different parameter settings.
-    parameter_list = []
-    for c1c2_temp in range(1, 41):
-        for w_temp in range(-9, 10):
-            c1c2 = c1c2_temp / 10
-            w = w_temp / 10
-            if c1c2 < (24 * (1 - np.square(w)) / (7 - 5 * w)):
-                parameter_list.append((w, c1c2 / 2, c1c2 / 2))
-    results = []
-    for index in range(len(parameter_list)):
-        dim = 6
-        b = (-5.12, 5.12)
-        fit_sum = 0
-        iter_sum = 0
-        for i in range(5):
-            p1 = PSO(dim, parameter_list[index], fitness_function, 10, b, 1000)
-            best, fit, iters = p1.main()
-            fit_sum += fit
-            iter_sum += iters
-        results.append((iter_sum / 5, fit_sum / 5, index))
-    print(results)
-
-
-def q2():
-    # there are 504 different parameter settings.
-    parameter_list = []
-    for c1c2_temp in range(1, 41):
-        for w_temp in range(-9, 10):
-            c1c2 = c1c2_temp / 10
-            w = w_temp / 10
-            if c1c2 < (24 * (1 - np.square(w)) / (7 - 5 * w)):
-                parameter_list.append((w, c1c2 / 2, c1c2 / 2))
-    top_parameters_sphere = [parameter_list[index] for (iters, fit, index) in
-                             (sorted(results_sphere, key=lambda r: r[1], reverse=True)[:10])]
-    top_parameters_rastrigin = [parameter_list[index] for (iters, fit, index) in
-                                (sorted(results_rastrigin, key=lambda r: r[1], reverse=True)[:10])]
-    q2_result_sphere = []
-    q2_result_rastrigin = []
-    b = (-5.12, 5.12)
-    n_list = [1, 5, 10, 20, 30, 50, 75, 100, 200, 500]
-    for n in n_list:
-        fit_temp = []
-        for params in top_parameters_sphere:
-            for i in range(5):
-                p1 = PSO(10, params, fit1, 99999999, b, 99999999, number_particles=n, max_time=1)
-                best, fit, iters = p1.main()
-                print("done")
-                fit_temp.append(fit)
-        q2_result_sphere.append(fit_temp)
-
-    for n in n_list:
-        fit_temp = []
-        for params in top_parameters_rastrigin:
-            for i in range(5):
-                p1 = PSO(10, params, fit2, 99999999, b, 99999999, number_particles=n, max_time=1)
-                best, fit, iters = p1.main()
-                print("done")
-                fit_temp.append(fit)
-        q2_result_rastrigin.append(fit_temp)
-    print(q2_result_sphere)
-    print(q2_result_rastrigin)
 
 
 def q3():
@@ -173,13 +181,13 @@ def q3():
                     c1c2_2 = c1c2_temp_2 * 0.5
                     parameter_list.append([(w_1, c1c2_1 / 2, c1c2_1 / 2), (w_2, c1c2_2 / 2, c1c2_2 / 2)])
     results = []
-    for ps in parameter_list:
+    for index in range(len(parameter_list)):
         dim = 6
         b = (-5.12, 5.12)
         fit_sum = 0
         iter_sum = 0
         for i in range(5):
-            p1 = HPSO(dim, ps[0], ps[1], fit2, 10, b, 1000)
+            p1 = HPSO(dim, parameter_list[index][0], parameter_list[index][1], fit2, 10, b, 1000)
             best, fit, iters = p1.main()
             fit_sum += fit
             iter_sum += iters
@@ -189,40 +197,3 @@ def q3():
 
 if __name__ == '__main__':
     q3()
-    # parameter_list = []
-    # for c1c2_temp in range(1, 41):
-    #     for w_temp in range(-9, 10):
-    #         c1c2 = c1c2_temp / 10
-    #         w = w_temp / 10
-    #         if c1c2 < (24 * (1 - np.square(w)) / (7 - 5 * w)):
-    #             parameter_list.append((w, c1c2 / 2, c1c2 / 2))
-    # top_parameters1 = [(0.5, 1.2, 1.2), (0.5, 1.1, 1.1), (0.4, 1.3, 1.3)]
-    # top_parameters2 = [(0.9, 0.1, 0.1), (0.9, 0.1, 0.1), (0.9, 0.1, 0.1)]
-    # top_parameters_rastrigin = [parameter_list[index] for (iters, fit, index) in
-    #                             (sorted(results_rastrigin, key=lambda r: r[1], reverse=True)[:1])]
-    # q2_result_rastrigin = []
-    # dim = 6
-    # space = [[X_MIN for _ in range(dim)], [X_MAX for _ in range(dim)]]
-    # n_list = [20]
-    # for n in n_list:
-    #     fit_temp = []
-    #     for p in range(len(top_parameters_rastrigin)):
-    #         for i in range(50):
-    #             w, a1, a2 = top_parameters_rastrigin[p]
-    #             param1 = (0.6, 1.3, 1.3)
-    #             print(w, a1, a2)
-    #             p1 = PSO(dim, top_parameters_rastrigin[p], fit2, 100, space, 1000, number_particles=60)
-    #             best, fit, iters = p1.main()
-    #             print("done")
-    #             fit_temp.append(fit)
-    #     q2_result_rastrigin.append(fit_temp)
-
-    # for n in n_list:
-    #     fit_temp = []
-    #     for p in range(len(top_parameters1)):
-    #         for i in range(5):
-    #             p1 = HPSO(dim, top_parameters1[p], top_parameters2[p], fit2, 10, space, 1000)
-    #             best, fit, iters = p1.main()
-    #             print("done")
-    #             fit_temp.append(fit)
-    #     q2_result_rastrigin.append(fit_temp)
