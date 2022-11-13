@@ -1,8 +1,9 @@
 import numpy as np
 import random
 import time
+
+from phso import HPSO
 from results import *
-import math
 
 X_MIN = -5.12
 X_MAX = 5.12
@@ -149,7 +150,7 @@ def q2():
         fit_temp = []
         for params in top_parameters_rastrigin:
             for i in range(2):
-                p1 = PSO(dim, params, fit2, 100, space, 9999999, number_particles=n, max_time=0.2)
+                p1 = PSO(dim, params, fit2, 100, space, 9999999, number_particles=n, max_time=1)
                 best, fit, iters = p1.main()
                 print("done")
                 fit_temp.append(fit)
@@ -159,4 +160,45 @@ def q2():
 
 
 if __name__ == '__main__':
-    q2()
+    space = [[X_MIN for _ in range(6)], [X_MAX for _ in range(6)]]
+    p1 = PSO(6, (0.6, 1.3, 1.3), fit2, 50, space, 1000, number_particles=60)
+    print(p1.main())
+    # parameter_list = []
+    # for c1c2_temp in range(1, 41):
+    #     for w_temp in range(-9, 10):
+    #         c1c2 = c1c2_temp / 10
+    #         w = w_temp / 10
+    #         if c1c2 < (24 * (1 - np.square(w)) / (7 - 5 * w)):
+    #             parameter_list.append((w, c1c2 / 2, c1c2 / 2))
+    # top_parameters1 = [(0.5, 1.2, 1.2), (0.5, 1.1, 1.1), (0.4, 1.3, 1.3)]
+    # top_parameters2 = [(0.9, 0.1, 0.1), (0.9, 0.1, 0.1), (0.9, 0.1, 0.1)]
+    # top_parameters_rastrigin = [parameter_list[index] for (iters, fit, index) in
+    #                             (sorted(results_rastrigin, key=lambda r: r[1], reverse=True)[:1])]
+    # q2_result_rastrigin = []
+    # dim = 6
+    # space = [[X_MIN for _ in range(dim)], [X_MAX for _ in range(dim)]]
+    # n_list = [20]
+    # for n in n_list:
+    #     fit_temp = []
+    #     for p in range(len(top_parameters_rastrigin)):
+    #         for i in range(50):
+    #             w, a1, a2 = top_parameters_rastrigin[p]
+    #             param1 = (0.6, 1.3, 1.3)
+    #             print(w, a1, a2)
+    #             p1 = PSO(dim, top_parameters_rastrigin[p], fit2, 100, space, 1000, number_particles=60)
+    #             best, fit, iters = p1.main()
+    #             print("done")
+    #             fit_temp.append(fit)
+    #     q2_result_rastrigin.append(fit_temp)
+
+    # for n in n_list:
+    #     fit_temp = []
+    #     for p in range(len(top_parameters1)):
+    #         for i in range(5):
+    #             p1 = HPSO(dim, top_parameters1[p], top_parameters2[p], fit2, 10, space, 1000)
+    #             best, fit, iters = p1.main()
+    #             print("done")
+    #             fit_temp.append(fit)
+    #     q2_result_rastrigin.append(fit_temp)
+
+    print(q2_result_rastrigin)

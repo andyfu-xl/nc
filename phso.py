@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import random
 import time
@@ -25,11 +26,13 @@ class HPSO:
         self.max_iteration = max_iter
         self.time_start = time.time()
         self.max_time = max_time
-        self.index_half = math.ceil(self.number_particles / 2)
 
-        self.x_positions = np.zeros(self.number_particles, self.dimension)
-        self.x_velocities = np.zeros(self.number_particles, self.dimension)
-        self.x_bests = np.zeros((self.number_particles, self.dimension))
+        self.x_positions_1 = np.zeros((self.number_particles / 2, self.dimension))
+        self.x_velocities_1 = np.zeros((self.number_particles / 2, self.dimension))
+        self.x_positions_1 = np.zeros((self.number_particles / 2, self.dimension))
+        self.x_positions_2 = np.zeros((self.number_particles / 2, self.dimension))
+        self.x_bests_1 = np.zeros((self.number_particles / 2, self.dimension))
+        self.x_bests_2 = np.zeros((self.number_particles / 2, self.dimension))
         self.global_best = np.zeros((1, self.dimension))
 
         max_fitness = float("-inf")
@@ -92,5 +95,10 @@ class HPSO:
                 counter = 0
         return self.best_ever, self.fitness(self.best_ever), self.iteration
 
+
 def fit(x):
     return -((10 * len(x)) + sum([(xi ** 2 - 10 * np.cos(2 * np.pi * xi)) for xi in x]))
+
+
+if __name__ == '__main__':
+    print("hello")
