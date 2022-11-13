@@ -86,4 +86,3 @@ def q2_plot():
     ax.set_ylabel('Fitness values')
     plt.show()
 
-q2_plot()
