@@ -41,7 +41,6 @@ class PSO:
         self.w, self.a1, self.a2 = parameters
         # this should be a function
         self.fitness = fitness_function
-        # bound should be 2D array in shape (2, dimension)
         self.x_min, self.x_max = bound
         self.number_particles = number_particles
         self.dimension = dimension
@@ -188,5 +187,5 @@ def q3():
 
 
 if __name__ == '__main__':
-    q3()
+    q2()
 
