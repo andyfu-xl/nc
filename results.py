@@ -19,7 +19,6 @@ for c1c2_temp_1 in range(7):
                 c1c2_2 = c1c2_temp_2 * 0.5
                 parameter_list_3.append([(w_1, c1c2_1 / 2, c1c2_1 / 2), (w_2, c1c2_2 / 2, c1c2_2 / 2)])
 
-top_parameters_hpso = [parameter_list_3[index] for (iters, fit, index) in
-                         (sorted(q3_result, key=lambda r: r[1], reverse=True)[:10])]
+top_parameters_hpso = [parameter_list_3[index] for (iters, fit, index) in (sorted(q3_result, key=lambda r: r[1], reverse=True)[:10])]
 
-print(sorted(q3_result, key=lambda r: r[1], reverse=True)[:10])
+print(top_parameters_hpso)
