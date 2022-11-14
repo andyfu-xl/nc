@@ -51,23 +51,23 @@ class DE:
         self.particles = [Particle(fitness_function, dimension, self.x_min, self.x_max) for _ in
                           range(number_particles)]
 
+    # randomly select three different particles/vectors, compute the v which is going to be crossovered with a vector.
     def compute_v(self):
-        v_list = []
-        for _ in range(self.number_particles):
-            q, r, s = random.sample(range(self.number_particles), 3)
-            vi = self.particles[q].position + self.f * (self.particles[r].position - self.particles[s].position)
-            v_list.append(vi)
-        return v_list
+        q, r, s = random.sample(range(self.number_particles), 3)
+        vi = self.particles[q].position + self.f * (self.particles[r].position - self.particles[s].position)
+        return vi
 
-    # asynchronous update
+    # update is the computation for each iteration
     def update(self):
         for x in range(self.number_particles):
-            v_list = self.compute_v()
-            u = self.particles[x].crossover(v_list[x], self.p)
+            vi = self.compute_v()
+            u = self.particles[x].crossover(vi, self.p)
+            # restrict particle's position
             for d in range(self.dimension):
                 u[d] = max(u[d], self.x_min)
                 u[d] = min(u[d], self.x_max)
             self.particles[x].selection(u)
+            # update fitness
             new_fitness = self.particles[x].fitness
             if new_fitness > self.best_fitness:
                 self.best_fitness = new_fitness
@@ -92,5 +92,23 @@ def fit2(x):
     return -((10 * len(x)) + sum([(xi ** 2 - 10 * np.cos(2 * np.pi * xi)) for xi in x]))
 
 
-d = DE(6, (0.5, 0.5), fit2, 100, (-5.12, 5.12), 1000)
-print(d.main())
+def q4():
+    parameter_list = []
+    for f_temp in range(21):
+        for x_temp in range(10):
+            parameter_list.append((f_temp * 0.1, x_temp * 0.1))
+    results = []
+    for index in range(len(parameter_list)):
+        print(index)
+        fit_sum = 0
+        iter_sum = 0
+        for i in range(5):
+            d = DE(10, (0.5, 0.5), fit2, 100, (-5.12, 5.12), 1000)
+            best, fit, iters = d.main()
+            fit_sum += fit
+            iter_sum += iters
+        results.append((iter_sum / 5, fit_sum / 5, index))
+    print(results)
+
+
+q4()
