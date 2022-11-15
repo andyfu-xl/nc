@@ -57,7 +57,7 @@ class DE:
         vi = self.particles[q].position + self.f * (self.particles[r].position - self.particles[s].position)
         return vi
 
-    # update is the computation for each iteration
+    # update is the computation for each iteration/generation
     def update(self):
         for x in range(self.number_particles):
             vi = self.compute_v()
@@ -88,6 +88,7 @@ class DE:
         return self.global_best, self.best_fitness, self.iteration
 
 
+# the rastrigin function
 def fit2(x):
     return -((10 * len(x)) + sum([(xi ** 2 - 10 * np.cos(2 * np.pi * xi)) for xi in x]))
 
@@ -110,5 +111,6 @@ def q4():
         results.append((iter_sum / 5, fit_sum / 5, index))
     print(results)
 
-
-q4()
+if __name__ == '__main__':
+    # printed results have been copied to result.py
+    q4()

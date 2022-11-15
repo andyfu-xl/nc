@@ -8,6 +8,7 @@ X_MIN = -5.12
 X_MAX = 5.12
 
 
+# each particle in the swarm
 class Particle:
     def __init__(self, fitness, dimension, x_min, x_max):
         self.position = np.random.uniform(low=x_min, high=x_max, size=dimension)
@@ -44,7 +45,6 @@ class HPSO:
         self.w_2, self.a1_2, self.a2_2 = parameters2
         # this should be a function
         self.fitness = fitness_function
-        # bound should be 2D array in shape (2, dimension)
         self.x_min, self.x_max = bound
         self.number_particles = number_particles
         self.dimension = dimension
@@ -55,6 +55,7 @@ class HPSO:
         self.time_start = time.time()
         self.half_population = int(number_particles / 2)
 
+        # initialization
         self.swarm = [Particle(fitness_function, dimension, self.x_min, self.x_max) for _ in range(number_particles)]
         self.global_best = self.swarm[0].personal_best
 
@@ -71,10 +72,12 @@ class HPSO:
             else:
                 self.swarm[x].update_velocity(self.w_2, self.a1_2, self.a2_2, self.global_best)
             new_position = self.swarm[x].position + self.swarm[x].velocity
+            # all particles in the bounded area
             for d in range(self.dimension):
                 new_position[d] = max(new_position[d], self.x_min)
                 new_position[d] = min(new_position[d], self.x_max)
             self.swarm[x].update_position(new_position)
+            # update global best
             new_fitness = self.fitness(new_position)
             if new_fitness > self.best_fitness:
                 self.best_fitness = new_fitness
@@ -94,7 +97,7 @@ class HPSO:
                 counter = 0
         return self.global_best, self.best_fitness, self.iteration
 
-
+# rastrigin function
 def fit2(x):
     return -((10 * len(x)) + sum([(xi ** 2 - 10 * np.cos(2 * np.pi * xi)) for xi in x]))
 
@@ -126,4 +129,5 @@ def q3():
 
 
 if __name__ == '__main__':
+    # printed results have been copied to result.py
     q3()
